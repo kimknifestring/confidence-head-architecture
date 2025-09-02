@@ -5,6 +5,7 @@ import config
 from model import TransformerLanguageModel
 from dataset import Dataset 
 from torch.optim.lr_scheduler import CosineAnnealingLR
+import os
 # 데이터 준비
 dataset = Dataset()
 vocab_size = dataset.vocab_size
@@ -12,6 +13,12 @@ vocab_size = dataset.vocab_size
 # 모델 생성
 model = TransformerLanguageModel(vocab_size)
 m = model.to(config.DEVICE)
+
+if os.path.exists(config.MODEL_PATH):
+    print(f"{config.MODEL_PATH} 파일에서 기존 가중치를 불러옵니다.")
+    model.load_state_dict(torch.load(config.MODEL_PATH, map_location=config.DEVICE))
+else:
+    print("새로운 모델의 훈련을 시작합니다.")
 
 # 훈련 가능한 파라미터 수 출력
 print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters Model')
