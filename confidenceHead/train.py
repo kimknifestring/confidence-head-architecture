@@ -4,7 +4,7 @@ import torch
 import config
 from model import TransformerLanguageModel
 from dataset import Dataset 
-
+from torch.optim.lr_scheduler import CosineAnnealingLR
 # 데이터 준비
 dataset = Dataset()
 vocab_size = dataset.vocab_size
@@ -18,6 +18,9 @@ print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters Model')
 
 # 옵티마이저 생성
 optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
+
+# 학습률 스케쥴러
+scheduler = CosineAnnealingLR(optimizer, T_max=config.MAX_ITERS, eta_min=0)
 
 # 훈련 루프
 for iter in range(1,config.MAX_ITERS+1):
@@ -44,7 +47,7 @@ for iter in range(1,config.MAX_ITERS+1):
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
     optimizer.step()
-
+    scheduler.step()
 # 모델 저장
 config.MODEL_DIR.mkdir(parents=True, exist_ok=True)
 torch.save(model.state_dict(), config.MODEL_PATH)
