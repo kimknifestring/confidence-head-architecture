@@ -8,3 +8,5 @@
 
 3.
 CosineAnnealingLR라는 재미있는 학습률 스케쥴러를 발견했음. 적용해서 성능을 향상(해결)
+
+4.CosineAnnealingWarmRestarts 를 통해 완만한 구간에서 탈출하는 전략을 사용(해결)
