@@ -13,6 +13,7 @@ DATASET_ID = "beomi/KoAlpaca-v1.1a"
 TOKENIZER_ID = "beomi/kcbert-base"
 
 MODEL_DIR = ROOT_DIR / 'Model'
+GRAPH_DIR = ROOT_DIR / 'Graph'
 VOCAB_DIR = ROOT_DIR / 'Vocab'
 MODEL_NAME = 'Transformer_model.pth'
 MODEL_PATH = MODEL_DIR / MODEL_NAME

@@ -6,6 +6,8 @@ from model import TransformerLanguageModel
 from dataset import Dataset 
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import os
+import json
+
 # 데이터 준비
 dataset = Dataset()
 vocab_size = dataset.vocab_size
@@ -29,6 +31,12 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
 # 학습률 스케쥴러
 scheduler = CosineAnnealingLR(optimizer, T_max=config.MAX_ITERS, eta_min=0)
 
+
+# 손실 값을 저장할 리스트 생성
+train_losses = []
+val_losses = []
+steps = []
+
 # 훈련 루프
 for iter in range(1,config.MAX_ITERS+1):
     # print(f"{iter} iter")
@@ -49,12 +57,27 @@ for iter in range(1,config.MAX_ITERS+1):
             logits, val_loss = model(xb_val, yb_val)
             print(f"step {iter}: validation loss {val_loss.item()}")
             print(f"step {iter}: train loss {loss.item()}")
+
+            train_losses.append(loss.item())
+            val_losses.append(val_loss.item())
+            steps.append(iter)
     
     # 역전파를 통한 파라미터 업데이트
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
     optimizer.step()
     scheduler.step()
+
+# 그래프 데이터 저장
+loss_data = {
+    'steps': steps,
+    'train_losses': train_losses,
+    'val_losses': val_losses
+}
+with open(config.GRAPH_DIR/'graph_data.json', 'w') as f:
+    json.dump(loss_data, f, indent=4)
+print("손실 데이터가 'graph_data.json' 파일로 저장되었습니다.")
+
 # 모델 저장
 config.MODEL_DIR.mkdir(parents=True, exist_ok=True)
 torch.save(model.state_dict(), config.MODEL_PATH)
