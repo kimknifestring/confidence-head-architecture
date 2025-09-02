@@ -4,7 +4,7 @@ import torch
 import config
 from model import TransformerLanguageModel
 from dataset import Dataset 
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts 
 import os
 import json
 

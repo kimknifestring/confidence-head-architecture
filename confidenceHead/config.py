@@ -21,7 +21,7 @@ MODEL_PATH = MODEL_DIR / MODEL_NAME
 # 하이퍼파라미터
 BATCH_SIZE = 32          # 한 번에 처리할 데이터 묶음의 크기
 BLOCK_SIZE = 256          # 모델이 한 번에 보는 문맥의 길이
-MAX_ITERS = 10000         # 총 훈련 반복 횟수
+MAX_ITERS = 100000         # 총 훈련 반복 횟수
 EVAL_INTERVAL = 100      # 중간 평가를 하는 간격
 LEARNING_RATE = 3e-4     # 학습률
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
