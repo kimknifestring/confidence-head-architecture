@@ -29,8 +29,7 @@ print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters Model')
 optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
 
 # 학습률 스케쥴러
-scheduler = CosineAnnealingLR(optimizer, T_max=config.MAX_ITERS, eta_min=0)
-
+scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=config.T_RESTARTCYCLE, T_mult=config.T_MULTIPLIER , eta_min=1e-5)
 
 # 손실 값을 저장할 리스트 생성
 train_losses = []

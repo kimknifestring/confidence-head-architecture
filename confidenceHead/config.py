@@ -25,7 +25,8 @@ MAX_ITERS = 100000         # 총 훈련 반복 횟수
 EVAL_INTERVAL = 100      # 중간 평가를 하는 간격
 LEARNING_RATE = 3e-4     # 학습률
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+T_RESTARTCYCLE = 1000
+T_MULTIPLIER = 2
 # 트랜스포머 모델 하이퍼파라미터
 N_EMBD = 256             # 임베딩 차원의 크기
 N_HEAD = 8               # 사용할 어텐션 헤드의 개수
