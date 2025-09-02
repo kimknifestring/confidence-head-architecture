@@ -31,7 +31,7 @@ T_MULTIPLIER = 2
 N_EMBD = 256             # 임베딩 차원의 크기
 N_HEAD = 8               # 사용할 어텐션 헤드의 개수
 N_LAYER = 6              # 쌓을 트랜스포머 블록의 개수
-DROPOUT = 0.2            # 드롭아웃 비율
+DROPOUT = 0.45            # 드롭아웃 비율
 
 # 그냥 변수들
 MAX_TOKEN=100
