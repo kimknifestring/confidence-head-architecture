@@ -26,7 +26,14 @@ print("Model loaded successfully.")
 # start_context = '\n'
 while True:
     start_context = input("예측할 문장을 입력:")
-    context = torch.tensor([tokenizer.encode(start_context)], dtype=torch.long, device=config.DEVICE)
+    # 사용자가 긴 문장을 입력할 경우를 대비해 자르기 옵션 추가
+    context = torch.tensor([
+        tokenizer.encode(
+            start_context,
+            max_length=config.BLOCK_SIZE,
+            truncation=True
+        )
+    ], dtype=torch.long, device=config.DEVICE)
 
     print("\n--- 트랜스포머 아키텍쳐로 생성된 텍스트: ---")
     generated_tokens = []

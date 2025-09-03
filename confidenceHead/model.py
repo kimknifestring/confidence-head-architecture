@@ -136,6 +136,8 @@ class Block(nn.Module):
         self.ffwd = FeedForward(n_embd)
         self.ln1 = nn.LayerNorm(n_embd)
         self.ln2 = nn.LayerNorm(n_embd)
+        # 드롭아웃
+        self.dropout = nn.Dropout(config.DROPOUT)
         
         # 신뢰도 헤드
         self.confidence_head_sa = nn.Sequential(nn.Linear(n_embd, 1), nn.Sigmoid())
