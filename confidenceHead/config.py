@@ -28,12 +28,12 @@ EVAL_INTERVAL = 100      # 중간 평가를 하는 간격
 LEARNING_RATE = 3e-4     # 학습률
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 T_RESTARTCYCLE = 1000
-T_MULTIPLIER = 2
+T_MULTIPLIER = 1
 # 트랜스포머 모델 하이퍼파라미터
-N_EMBD = 256             # 임베딩 차원의 크기
-N_HEAD = 8               # 사용할 어텐션 헤드의 개수
-N_LAYER = 6              # 쌓을 트랜스포머 블록의 개수
-DROPOUT = 0.45            # 드롭아웃 비율
+N_EMBD = 128             # 임베딩 차원의 크기
+N_HEAD = 4               # 사용할 어텐션 헤드의 개수
+N_LAYER = 3              # 쌓을 트랜스포머 블록의 개수
+DROPOUT = 0.3            # 드롭아웃 비율
 
 # 그냥 변수들
 MAX_TOKEN=100
