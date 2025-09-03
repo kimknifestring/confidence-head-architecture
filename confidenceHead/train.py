@@ -16,7 +16,7 @@ def bestSave(val_loss, best_val_loss):
         # 최고 모델 저장 경로
         best_model_path = config.MODEL_DIR / 'best_model.pth'
         torch.save(model.state_dict(), best_model_path)
-        print(f"최고 성능 모델이 {best_model_path}에 저장되었습니다. loss: {best_val_loss}")
+        print(f"최고 성능 모델이 갱신되었습니다. loss: {best_val_loss}")
     return best_val_loss
 
 # 데이터 준비
