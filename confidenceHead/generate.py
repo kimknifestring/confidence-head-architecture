@@ -17,8 +17,8 @@ m = model.to(config.DEVICE)
 
 # 저장된 가중치(state_dict) 불러오기
 print('가중치를 불러오는 중...')
-print(f"Loading model from {config.MODEL_PATH}...")
-m.load_state_dict(torch.load(config.MODEL_PATH, weights_only=True))
+print(f"Loading model from {config.BEST_PATH}...")
+m.load_state_dict(torch.load(config.BEST_PATH, weights_only=True))
 m.eval() # 모델을 평가 모드로 설정
 print("Model loaded successfully.")
 

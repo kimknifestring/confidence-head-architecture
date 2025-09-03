@@ -27,24 +27,17 @@ class LossPlotter:
 
         steps = self.data['steps']
         train_losses = self.data['train_losses']
-        val_losses = a= self.data['val_losses']
-
-        # 최소 검증 손실 값과 해당 인덱스 찾기
-        min_val_loss = min(val_losses)
-        min_val_loss_step = steps[np.argmin(val_losses)]
-
-        # 최소 검증 손실 지점에 수평선 추가
-        plt.axhline(y=min_val_loss, color='r', linestyle='--', label=f'모델 추출 지점: {min_val_loss:.4f}')
-
-        # 최소 검증 손실 값을 텍스트로 표시
-        plt.text(steps[-1], min_val_loss, f'{min_val_loss:.4f}', color='r', va='bottom', ha='right')
+        val_losses =  self.data['val_losses']
+        
         plt.figure(figsize=(10, 6))
         plt.plot(steps, train_losses, label='훈련 손실(Train Loss)')
         plt.plot(steps, val_losses, label='검증 손실(Validation Loss)')
+        min_val_loss = min(val_losses)
+        plt.axhline(y=min_val_loss, color='r', linestyle='--', label=f'모델 추출 지점: {min_val_loss:.4f}')
+        plt.text(steps[-1], min_val_loss, f'{min_val_loss:.4f}', color='r', va='bottom', ha='right')
         plt.xlabel("Steps")
         plt.ylabel("Loss")
         plt.title("Step에 따른 Train Loss와 Validation Loss 변화")
-        
         plt.legend()
         plt.grid(True)
         
