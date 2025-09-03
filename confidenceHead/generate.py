@@ -29,9 +29,12 @@ while True:
     context = torch.tensor([tokenizer.encode(start_context)], dtype=torch.long, device=config.DEVICE)
 
     print("\n--- 트랜스포머 아키텍쳐로 생성된 텍스트: ---")
-    print(start_context,end='')
+    generated_tokens = []
     for token_tensor in m.generate(context, max_new_tokens=config.MAX_TOKEN):
-        new_char = tokenizer.decode([token_tensor.item()])
-        print(new_char, end='', flush=True)
+        generated_tokens.append(token_tensor.item())
+
+    # 모든 토큰 생성이 끝난 후, 한 번에 디코딩하여 출력
+    full_text = tokenizer.decode(generated_tokens)
+    print(start_context + full_text)
 
     print()
