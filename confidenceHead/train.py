@@ -8,16 +8,20 @@ from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts, CosineAnnealingLR
 import os
 import json
+import numpy as np
 
-# 최고 성능 모델 저장
-def bestSave(val_loss, best_val_loss):
-    if val_loss < best_val_loss:
-        best_val_loss = val_loss
-        # 최고 모델 저장 경로
-        best_model_path = config.MODEL_DIR / 'best_model.pth'
-        torch.save(model.state_dict(), best_model_path)
-        print(f"최고 성능 모델이 갱신되었습니다. loss: {best_val_loss}")
-    return best_val_loss
+@torch.no_grad()
+def evaluate(model, data_loader):
+    model.eval() # 모델을 평가 모드로 설정
+    losses = []
+    for xb, yb in data_loader:
+        xb, yb = xb.to(config.DEVICE), yb.to(config.DEVICE)
+        _, loss = model(xb, yb)
+        losses.append(loss.item())
+    model.train() # 모델을 다시 훈련 모드로 설정
+    # 
+    return np.mean(losses)
+
 
 # 데이터 준비
 print("데이터셋 준비 중...")
@@ -58,10 +62,13 @@ steps = []
 # 가장 낮은 검증 손실을 추적하기 위한 변수
 best_val_loss = float('inf') 
 
+# 학습이 원할하지 않을 시 종료하기 위한 인내심 변수
+patience_counter = 0
+
 # 훈련 루프
+model.train()
 train_iterator = iter(train_loader)
 for iter_num in range(1, config.MAX_ITERS + 1):
-    # 데이터 로더에서 배치를 가져오고, 데이터가 소진되면 다시 처음부터 가져옴
     try:
         xb, yb = next(train_iterator)
     except StopIteration:
@@ -71,27 +78,39 @@ for iter_num in range(1, config.MAX_ITERS + 1):
     xb, yb = xb.to(config.DEVICE), yb.to(config.DEVICE)
     logits, loss = model(xb, yb)
 
-    if iter_num % config.EVAL_INTERVAL == 0 or iter_num == config.MAX_ITERS:
-        with torch.no_grad():
-            # 검증 데이터 로더에서 배치를 하나 가져와서 평가
-            val_iterator = iter(val_loader)
-            xb_val, yb_val = next(val_iterator)
-            xb_val, yb_val = xb_val.to(config.DEVICE), yb_val.to(config.DEVICE)
-            
-            logits, val_loss = model(xb_val, yb_val)
-            print(f"step {iter_num}: validation loss {val_loss.item():.4f}")
-            print(f"step {iter_num}: train loss {loss.item():.4f}")
-
-            best_val_loss = bestSave(val_loss.item(), best_val_loss)
-            
-            train_losses.append(loss.item())
-            val_losses.append(val_loss.item())
-            steps.append(iter_num)
-    
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
     optimizer.step()
     scheduler.step()
+
+    # 평가 및 조기 종료
+    if iter_num % config.EVAL_INTERVAL == 0 or iter_num == config.MAX_ITERS:
+        
+        # 전체 검증 데이터로 평가
+        current_val_loss = evaluate(model, val_loader)
+        
+        print(f"step {iter_num}: validation loss {current_val_loss:.4f}")
+        print(f"step {iter_num}: train loss {loss.item():.4f}")
+
+        # 그래프 데이터 저장
+        train_losses.append(loss.item())
+        val_losses.append(current_val_loss)
+        steps.append(iter_num)
+
+        # 최고 성능 모델 갱신 및 조기 종료 카운터 관리
+        if current_val_loss < best_val_loss:
+            best_val_loss = current_val_loss
+            torch.save(model.state_dict(), config.BEST_PATH)
+            print(f"최고 성능 모델 갱신 loss: {best_val_loss:.4f}")
+            patience_counter = 0 
+        else:
+            patience_counter += 1 
+            print(f"성능 개선 없음. Patience: {patience_counter}/{config.PATIENCE}")
+        
+        # 조기 종료 조건 확인
+        if patience_counter >= config.PATIENCE:
+            print(f"{config.PATIENCE}번의 평가 동안 성능 개선이 없어 훈련을 조기 종료합니다.")
+            break
 
 # 그래프 데이터 저장
 loss_data = {
