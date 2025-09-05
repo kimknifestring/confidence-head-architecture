@@ -43,7 +43,7 @@ else:
 print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters Model')
 
 # 옵티마이저 생성
-optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
+optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE,weight_decay=0.05)
 
 # 학습률 스케쥴러
 
