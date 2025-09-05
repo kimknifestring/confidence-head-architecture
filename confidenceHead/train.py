@@ -102,8 +102,3 @@ loss_data = {
 with open(config.GRAPH_DIR/'graph_data.json', 'w') as f:
     json.dump(loss_data, f, indent=4)
 print("손실 데이터가 'graph_data.json' 파일로 저장되었습니다.")
-
-# 모델 저장
-config.MODEL_DIR.mkdir(parents=True, exist_ok=True)
-torch.save(model.state_dict(), config.MODEL_PATH)
-print(f"모델이 {config.MODEL_PATH} 파일에 저장되었습니다.")
