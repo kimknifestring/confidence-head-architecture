@@ -37,9 +37,9 @@ print("데이터셋 준비 완료.")
 model = TransformerLanguageModel(vocab_size)
 m = model.to(config.DEVICE)
 
-if os.path.exists(config.MODEL_PATH):
-    print(f"{config.MODEL_PATH} 파일에서 기존 가중치를 불러옵니다.")
-    model.load_state_dict(torch.load(config.MODEL_PATH, map_location=config.DEVICE))
+if os.path.exists(config.BEST_PATH):
+    print(f"{config.BEST_PATH} 파일에서 기존 가중치를 불러옵니다.")
+    model.load_state_dict(torch.load(config.BEST_PATH, map_location=config.DEVICE))
 else:
     print("새로운 모델의 훈련을 시작합니다.")
 
@@ -50,9 +50,8 @@ print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters Model')
 optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE,weight_decay=0.05)
 
 # 학습률 스케쥴러
-
-# scheduler = CosineAnnealingLR(optimizer, T_max=config.MAX_ITERS, eta_min=0)
-scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=config.T_RESTARTCYCLE, T_mult=config.T_MULTIPLIER , eta_min=1e-5)
+scheduler = CosineAnnealingLR(optimizer, T_max=config.MAX_ITERS, eta_min=0)
+# scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=config.T_RESTARTCYCLE, T_mult=config.T_MULTIPLIER , eta_min=1e-5)
 
 # 손실 값을 저장할 리스트 생성
 train_losses = []

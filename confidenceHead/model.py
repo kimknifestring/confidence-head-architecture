@@ -147,10 +147,11 @@ class Block(nn.Module):
         processed_sa = self.sa(self.ln1(x))
         # 신뢰도 계산
         gate_sa = self.confidence_head_sa(processed_sa)
-        x = x + self.dropout(gate_sa * processed_sa)
+        # x = x + self.dropout(gate_sa * processed_sa)
+        x = x + self.dropout(processed_sa)
 
         processed_ffwd = self.ffwd(self.ln2(x))
         gate_ffwd = self.confidence_head_ffwd(processed_ffwd)
-        x = x + self.dropout(gate_ffwd * processed_ffwd)
-        
+        # x = x + self.dropout(gate_ffwd * processed_ffwd)
+        x = x + self.dropout(processed_ffwd)
         return x
