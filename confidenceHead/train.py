@@ -61,9 +61,6 @@ steps = []
 # 최고 성능 모델의 손실을 추적하기 위한 변수
 best_val_loss = float('inf') 
 
-# 검증 손실의 증감 여부를 추적하기 위한 변수
-past_val_loss = float('inf') 
-
 # 학습이 원할하지 않을 시 종료하기 위한 인내심 변수
 patience_counter = 0
 
@@ -102,16 +99,13 @@ for iter_num in range(1, config.MAX_ITERS + 1):
         # 최고 성능 모델 갱신 및 조기 종료 카운터 관리
         if current_val_loss < best_val_loss:
             best_val_loss = current_val_loss
-            past_val_loss = current_val_loss
             torch.save(model.state_dict(), config.BEST_PATH)
-            print(f"최고 성능 모델 갱신 loss: {best_val_loss:.4f}")
+            print(f"최고 성능 모델 갱신 Loss: {best_val_loss:.4f}")
             patience_counter = 0 
-        elif current_val_loss < past_val_loss:
-            past_val_loss = current_val_loss
         else:
-            patience_counter += 1 
+            patience_counter += 1
             print(f"성능 개선 없음. Patience: {patience_counter}/{config.PATIENCE}")
-        
+
         # 조기 종료 조건 확인
         if patience_counter >= config.PATIENCE:
             print(f"{config.PATIENCE}번의 평가 동안 성능 개선이 없어 훈련을 조기 종료합니다.")
