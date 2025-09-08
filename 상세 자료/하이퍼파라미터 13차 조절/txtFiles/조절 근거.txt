@@ -1,1 +1,2 @@
-과적합을 잘 견디게 하려는 의도로 드롭아웃을 3할로 상승시킴
+과적합을 잘 견디게 하려는 의도로 드롭아웃을 2.5로 상승시키고, 손실함수의 더 깊은 곳으로 내려가기 위해 스케쥴러를 CosineAnnealingWarmRestarts로 변경함
+CosineAnnealingWarmRestarts에 의해 초기 step에서의 학습의 불안정을 해결하기 위해 PATIENCE를 20으로 넉넉히 설정함
