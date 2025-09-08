@@ -75,7 +75,8 @@ for iter_num in range(1, config.MAX_ITERS + 1):
         xb, yb = next(train_iterator)
     
     xb, yb = xb.to(config.DEVICE), yb.to(config.DEVICE)
-    logits, loss = model(xb, yb)
+    should_log_gates = (iter_num % config.EVAL_INTERVAL == 0)
+    logits, loss = model(xb, yb, log_gates=should_log_gates)
 
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
