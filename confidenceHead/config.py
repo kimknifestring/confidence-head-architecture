@@ -23,7 +23,7 @@ BEST_PATH = MODEL_DIR / BEST_NAME
 # 하이퍼파라미터
 BATCH_SIZE = 32          # 한 번에 처리할 데이터 묶음의 크기
 BLOCK_SIZE = 256         # 모델이 한 번에 보는 문맥의 길이
-MAX_ITERS = 150000         # 총 훈련 반복 횟수
+MAX_ITERS = 15000         # 총 훈련 반복 횟수
 EVAL_INTERVAL = 100      # 중간 평가를 하는 간격
 LEARNING_RATE = 3e-4     # 학습률
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -31,10 +31,13 @@ T_RESTARTCYCLE = 1428 # 약 10000 부근에서 리스타트를 촉발시키기 �
 T_MULTIPLIER = 2
 PATIENCE = 10
 # 트랜스포머 모델 하이퍼파라미터
-N_EMBD = 256             # 임베딩 차원의 크기
-N_HEAD = 8               # 사용할 어텐션 헤드의 개수
-N_LAYER = 6              # 쌓을 트랜스포머 블록의 개수
+N_EMBD = 384             # 임베딩 차원의 크기
+N_HEAD = 6               # 사용할 어텐션 헤드의 개수
+N_LAYER = 12              # 쌓을 트랜스포머 블록의 개수
 DROPOUT = 0.25            # 드롭아웃 비율
+
+# 신뢰도 헤드 하이퍼파라미터
+INITIAL_BIAS = -2.0
 
 # 그냥 변수들
 MAX_TOKEN=100

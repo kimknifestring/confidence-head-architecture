@@ -18,9 +18,18 @@ class TransformerLanguageModel(nn.Module):
         self.blocks = nn.Sequential(*[Block(config.N_EMBD, n_head=config.N_HEAD) for _ in range(config.N_LAYER)])
         self.ln_f = nn.LayerNorm(config.N_EMBD)
         self.lm_head = nn.Linear(config.N_EMBD, vocab_size)
+
+        for block in self.blocks:
+            # 어텐션 서브층의 신뢰도 헤드 편향을 수정
+            if hasattr(block, 'confidence_head_sa'):
+                torch.nn.init.constant_(block.confidence_head_sa[0].bias, config.INITIAL_BIAS)
+            # 피드포워드 서브층의 신뢰도 헤드 편향을 수정
+            if hasattr(block, 'confidence_head_ffwd'):
+                torch.nn.init.constant_(block.confidence_head_ffwd[0].bias, config.INITIAL_BIAS)
+                
         print("완료됨")
 
-    def forward(self, idx, targets=None):
+    def forward(self, idx, targets=None,log_gates=False):
         B, T = idx.shape
         # 단어가 가지는 의미
         tok_emb = self.token_embedding_table(idx) # 결과 모양:(B,T,C)
@@ -28,7 +37,9 @@ class TransformerLanguageModel(nn.Module):
         pos_emb = self.position_embedding_table(torch.arange(T, device=config.DEVICE)) # 결과 모양: (T, C)
         # 원랜 형식이 맞지 않아 더할 수 없지만 Pytorch의 브로드캐스팅(작은 텐서를 자동으로 확장하여 큰 텐서와 맞춰 연산이 가능하게 만듬)을 사용하여 더할 수 있음
         x = tok_emb + pos_emb
-        x = self.blocks(x)
+
+        for block in self.blocks:
+            x = block(x, log_gates=log_gates)
         x = self.ln_f(x)
         logits = self.lm_head(x)
         if targets is None:
@@ -43,7 +54,7 @@ class TransformerLanguageModel(nn.Module):
     def generate(self, idx, max_new_tokens):
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -config.BLOCK_SIZE:]
-            logits, loss = self(idx_cond)
+            logits, loss = self(idx_cond,log_gates=False)
 
             logits = logits[:, -1, :] 
             probs = F.softmax(logits, dim=-1) 
@@ -143,9 +154,10 @@ class Block(nn.Module):
         self.confidence_head_sa = nn.Sequential(nn.Linear(n_embd, 1), nn.Sigmoid())
         self.confidence_head_ffwd = nn.Sequential(nn.Linear(n_embd, 1), nn.Sigmoid())
 
-    def forward(self, x):
+    def forward(self, x, log_gates=False):
         processed_sa = self.sa(self.ln1(x))
         # 신뢰도 계산
+<<<<<<< HEAD
         gate_sa = self.confidence_head_sa(processed_sa)
         x = x + self.dropout(gate_sa * processed_sa)
         # x = x + self.dropout(processed_sa)
@@ -154,4 +166,17 @@ class Block(nn.Module):
         gate_ffwd = self.confidence_head_ffwd(processed_ffwd)
         x = x + self.dropout(gate_ffwd * processed_ffwd)
         # x = x + self.dropout(processed_ffwd)
+=======
+        # gate_sa = self.confidence_head_sa(processed_sa)
+        # x = x + self.dropout(gate_sa * processed_sa)
+        x = x + self.dropout(processed_sa)
+
+        processed_ffwd = self.ffwd(self.ln2(x))
+        # gate_ffwd = self.confidence_head_ffwd(processed_ffwd)
+        # x = x + self.dropout(gate_ffwd * processed_ffwd)
+        x = x + self.dropout(processed_ffwd)
+
+        # if log_gates:
+        #     print(f"SA Gate Avg: {gate_sa.mean().item():.4f} FFWD Gate Avg: {gate_ffwd.mean().item():.4f}")
+>>>>>>> fd9b7ffd4c1b938e0ae5ecee1ae72614258fbf86
         return x
