@@ -54,7 +54,7 @@ class TransformerLanguageModel(nn.Module):
     def generate(self, idx, max_new_tokens):
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -config.BLOCK_SIZE:]
-            logits, loss = self(idx_cond)
+            logits, loss = self(idx_cond,log_gates=False)
 
             logits = logits[:, -1, :] 
             probs = F.softmax(logits, dim=-1) 
@@ -157,15 +157,15 @@ class Block(nn.Module):
     def forward(self, x, log_gates=False):
         processed_sa = self.sa(self.ln1(x))
         # 신뢰도 계산
-        gate_sa = self.confidence_head_sa(processed_sa)
-        x = x + self.dropout(gate_sa * processed_sa)
-        # x = x + self.dropout(processed_sa)
+        # gate_sa = self.confidence_head_sa(processed_sa)
+        # x = x + self.dropout(gate_sa * processed_sa)
+        x = x + self.dropout(processed_sa)
 
         processed_ffwd = self.ffwd(self.ln2(x))
-        gate_ffwd = self.confidence_head_ffwd(processed_ffwd)
-        x = x + self.dropout(gate_ffwd * processed_ffwd)
-        # x = x + self.dropout(processed_ffwd)
+        # gate_ffwd = self.confidence_head_ffwd(processed_ffwd)
+        # x = x + self.dropout(gate_ffwd * processed_ffwd)
+        x = x + self.dropout(processed_ffwd)
 
-        if log_gates:
-            print(f"SA Gate Avg: {gate_sa.mean().item():.4f} FFWD Gate Avg: {gate_ffwd.mean().item():.4f}")
+        # if log_gates:
+        #     print(f"SA Gate Avg: {gate_sa.mean().item():.4f} FFWD Gate Avg: {gate_ffwd.mean().item():.4f}")
         return x
